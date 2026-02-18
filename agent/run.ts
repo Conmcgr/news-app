@@ -22,7 +22,6 @@ import { scoreItems } from './pipeline/score';
 import { analyzeTopItems } from './pipeline/analyze';
 import { supabaseAdmin } from '../lib/supabase';
 import { UserProfile, AnalyzedItem, DigestSource } from '../lib/types';
-
 import profileJson from '../config/profile.json';
 
 function getWeekOf(): string {
@@ -38,8 +37,19 @@ async function run() {
   const weekOf = getWeekOf();
   console.log(`Week of: ${weekOf}`);
 
-  // Load user profile (from config file for Phase 1)
-  const profile: UserProfile = profileJson as UserProfile;
+  // Load user profile from Supabase (falls back to profile.json if not found)
+  let profile: UserProfile;
+  const { data: profileData } = await supabaseAdmin
+    .from('user_profile')
+    .select('*')
+    .limit(1)
+    .single();
+  if (profileData) {
+    profile = profileData as UserProfile;
+  } else {
+    console.warn('No profile found in Supabase, falling back to profile.json');
+    profile = profileJson as UserProfile;
+  }
   console.log(`Loaded profile: ${profile.interests.length} interests, ${profile.tracked_entities.length} tracked entities`);
 
   // --- Step 1: Fetch from all sources ---

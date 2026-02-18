@@ -1,5 +1,6 @@
+import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
-import { Rss, Zap } from 'lucide-react';
+import { Rss, Zap, Settings } from 'lucide-react';
 import { DigestItem } from '../lib/types';
 import { DigestItemCard } from '../components/DigestItemCard';
 
@@ -54,9 +55,18 @@ export default async function DigestPage() {
             <Rss className="w-5 h-5 text-blue-400" />
             <span className="font-semibold text-zinc-100 tracking-tight">Tech Intelligence</span>
           </div>
-          {weekLabel && (
-            <span className="text-xs text-zinc-500">{weekLabel}</span>
-          )}
+          <div className="flex items-center gap-4">
+            {weekLabel && (
+              <span className="text-xs text-zinc-500">{weekLabel}</span>
+            )}
+            <Link
+              href="/onboard"
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Edit profile
+            </Link>
+          </div>
         </div>
       </header>
 
