@@ -13,12 +13,20 @@ interface FeedConfig {
   name: string;
 }
 
-// Phase 1 feeds — all public/free RSS
 export const RSS_FEEDS: FeedConfig[] = [
+  // AI / Research newsletters
   { url: 'https://tldr.tech/api/rss/ai', name: 'TLDR AI' },
   { url: 'https://www.interconnects.ai/feed', name: 'Interconnects' },
   { url: 'https://www.deeplearning.ai/the-batch/feed/', name: 'The Batch' },
   { url: 'https://magazine.sebastianraschka.com/feed', name: 'Ahead of AI' },
+
+  // Startup / VC / Business tech
+  { url: 'https://techcrunch.com/feed/', name: 'TechCrunch' },
+  { url: 'https://venturebeat.com/feed/', name: 'VentureBeat' },
+  { url: 'https://a16z.com/feed/', name: 'a16z' },
+  { url: 'https://news.crunchbase.com/feed/', name: 'Crunchbase News' },
+  { url: 'https://www.ben-evans.com/benedictevans/rss.xml', name: 'Benedict Evans' },
+  { url: 'https://www.thediff.co/feed', name: 'The Diff' },
 ];
 
 async function fetchFeed(feed: FeedConfig, daysBack: number): Promise<RawItem[]> {

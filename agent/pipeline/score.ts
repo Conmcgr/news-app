@@ -9,14 +9,14 @@ interface ScoreResponse {
   relevance_reason: string;
 }
 
-async function scoreItem(item: RawItem, profile: UserProfile): Promise<ScoreResponse | null> {
+async function scoreItem(item: RawItem, profile: UserProfile, feedbackContext: string): Promise<ScoreResponse | null> {
   const prompt = `You are an opportunity analyst for a technically-minded college student interested in founding companies and making early-stage investments, with a focus on AI and applied AI at the intersection of fields like biotech, fintech, and developer tools.
 
 User context: ${profile.context}
 User interests (weighted): ${profile.interests.map((i) => `${i.domain} (${i.weight})`).join(', ')}
 User goals: ${profile.goals.join('; ')}
 Tracked entities: ${profile.tracked_entities.join(', ')}
-
+${feedbackContext ? `\nUser feedback history (calibrate scores accordingly):\n${feedbackContext}` : ''}
 Score the following piece of content from 0-10 on opportunity signal. Consider:
 - Relevance to the user's interests (most important)
 - Novelty — is this genuinely new information or just commentary on old news?
@@ -55,14 +55,14 @@ ${item.content.slice(0, 1500)}`;
   }
 }
 
-export async function scoreItems(items: RawItem[], profile: UserProfile): Promise<ScoredItem[]> {
+export async function scoreItems(items: RawItem[], profile: UserProfile, feedbackContext = ''): Promise<ScoredItem[]> {
   const results: ScoredItem[] = [];
 
   // Process in batches of 3 with 4s delay → ~45 req/min (under the 50/min limit)
   const batchSize = 3;
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize);
-    const scores = await Promise.all(batch.map((item) => scoreItem(item, profile)));
+    const scores = await Promise.all(batch.map((item) => scoreItem(item, profile, feedbackContext)));
 
     for (let j = 0; j < batch.length; j++) {
       const score = scores[j];

@@ -17,6 +17,7 @@ config({ path: resolve(process.cwd(), '.env.local') });
 import { fetchHackerNews } from './sources/hackernews';
 import { fetchArxiv } from './sources/arxiv';
 import { fetchRssFeeds } from './sources/rss';
+import { fetchGithubTrending } from './sources/github';
 import { deduplicateItems } from './pipeline/dedupe';
 import { scoreItems } from './pipeline/score';
 import { analyzeTopItems } from './pipeline/analyze';
@@ -52,15 +53,41 @@ async function run() {
   }
   console.log(`Loaded profile: ${profile.interests.length} interests, ${profile.tracked_entities.length} tracked entities`);
 
+  // --- Load feedback signal ---
+  const { data: feedbackItems } = await supabaseAdmin
+    .from('digest_items')
+    .select('tags, user_feedback')
+    .not('user_feedback', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  let feedbackContext = '';
+  if (feedbackItems && feedbackItems.length > 0) {
+    const countTags = (tags: string[]) =>
+      tags.reduce<Record<string, number>>((acc, t) => ({ ...acc, [t]: (acc[t] || 0) + 1 }), {});
+
+    const upTags = feedbackItems.filter((i) => i.user_feedback === 'up').flatMap((i) => i.tags as string[]);
+    const downTags = feedbackItems.filter((i) => i.user_feedback === 'down').flatMap((i) => i.tags as string[]);
+    const upTop = Object.entries(countTags(upTags)).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([t]) => t);
+    const downTop = Object.entries(countTags(downTags)).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([t]) => t);
+
+    const parts = [];
+    if (upTop.length > 0) parts.push(`Topics user has upvoted: ${upTop.join(', ')}`);
+    if (downTop.length > 0) parts.push(`Topics user has downvoted: ${downTop.join(', ')}`);
+    feedbackContext = parts.join('\n');
+    if (feedbackContext) console.log(`[Feedback] ${upTags.length} upvotes, ${downTags.length} downvotes loaded`);
+  }
+
   // --- Step 1: Fetch from all sources ---
   console.log('\n[1/5] Fetching from sources...');
-  const [hnItems, arxivItems, rssItems] = await Promise.all([
+  const [hnItems, arxivItems, rssItems, githubItems] = await Promise.all([
     fetchHackerNews(7),
     fetchArxiv(7),
     fetchRssFeeds(undefined, 7),
+    fetchGithubTrending(7),
   ]);
 
-  const allRaw = [...hnItems, ...arxivItems, ...rssItems];
+  const allRaw = [...hnItems, ...arxivItems, ...rssItems, ...githubItems];
   console.log(`Total raw items: ${allRaw.length}`);
 
   // --- Step 2: Deduplicate ---
@@ -69,7 +96,7 @@ async function run() {
 
   // --- Step 3: Score with Haiku ---
   console.log('\n[3/5] Scoring with Claude Haiku...');
-  const scored = await scoreItems(deduped, profile);
+  const scored = await scoreItems(deduped, profile, feedbackContext);
 
   if (scored.length === 0) {
     console.log('No items passed scoring threshold. Exiting.');
