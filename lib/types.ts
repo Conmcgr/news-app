@@ -33,6 +33,7 @@ export interface DigestItem {
   score: number;
   is_featured: boolean;
   is_breaking: boolean;
+  dismissed: boolean;
   user_feedback: UserFeedback;
   created_at: string;
 }

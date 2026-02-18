@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, ChevronDown, ChevronUp, MessageSquare, Zap } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp, MessageSquare, Zap, Archive } from 'lucide-react';
 import { DigestItem } from '../lib/types';
 import { TagBadge } from './TagBadge';
 import { FeedbackButtons } from './FeedbackButtons';
@@ -16,6 +16,18 @@ interface Props {
 export function DigestItemCard({ item, featured = false }: Props) {
   const [expanded, setExpanded] = useState(featured);
   const [chatOpen, setChatOpen] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  async function handleDismiss() {
+    setDismissed(true);
+    await fetch('/api/dismiss', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: item.id, dismissed: true }),
+    });
+  }
+
+  if (dismissed) return null;
 
   const sources = item.sources as Array<{ url: string; title: string; type: string }>;
 
@@ -45,6 +57,13 @@ export function DigestItemCard({ item, featured = false }: Props) {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <FeedbackButtons itemId={item.id} initialFeedback={item.user_feedback} />
+              <button
+                onClick={handleDismiss}
+                className="p-1.5 rounded text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800 transition-colors"
+                title="Dismiss to archive"
+              >
+                <Archive className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

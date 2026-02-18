@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
-import { Rss, Zap, Settings } from 'lucide-react';
+import { Rss, Zap, Settings, ArchiveIcon } from 'lucide-react';
 import { DigestItem } from '../lib/types';
 import { DigestItemCard } from '../components/DigestItemCard';
 
@@ -25,6 +25,7 @@ async function getDigest(): Promise<{ items: DigestItem[]; week_of: string | nul
       .from('digest_items')
       .select('*')
       .eq('week_of', latest.week_of)
+      .eq('dismissed', false)
       .order('score', { ascending: false });
 
     if (error) throw error;
@@ -59,6 +60,13 @@ export default async function DigestPage() {
             {weekLabel && (
               <span className="text-xs text-zinc-500">{weekLabel}</span>
             )}
+            <Link
+              href="/archive"
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
+              <ArchiveIcon className="w-3.5 h-3.5" />
+              Archive
+            </Link>
             <Link
               href="/onboard"
               className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
