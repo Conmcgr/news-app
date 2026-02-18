@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tech Intelligence
 
-## Getting Started
+A personal weekly AI and tech opportunity digest. Aggregates HackerNews, arXiv, and curated newsletters, scores items with Claude Haiku, generates full opportunity analyses with Claude Sonnet, and serves them in a clean dark-mode web UI.
 
-First, run the development server:
+## Stack
+
+- **Frontend:** Next.js 16 (App Router) + TypeScript + Tailwind CSS
+- **Database:** Supabase (Postgres)
+- **AI:** Claude Haiku (scoring) + Claude Sonnet (analysis + chat)
+- **Agent runner:** GitHub Actions (weekly cron)
+- **Hosting:** Vercel (frontend)
+- **Package manager:** Bun
+
+---
+
+## Setup
+
+### 1. Clone and install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+git clone <your-repo>
+cd news-app
+bun install
+```
+
+### 2. Create Supabase project
+
+1. Go to [supabase.com](https://supabase.com) and create a new project
+2. Run the migration in `supabase/migrations/001_initial_schema.sql` via the Supabase SQL editor
+3. Copy your project URL, anon key, and service role key from **Settings → API**
+
+### 3. Set up environment variables
+
+```bash
+cp .env.local.example .env.local
+# Edit .env.local with your actual keys
+```
+
+### 4. Run the agent locally (first test)
+
+```bash
+bun run agent
+```
+
+This fetches from HackerNews, arXiv, and RSS feeds, scores items with Claude Haiku, generates opportunity analyses with Claude Sonnet, and writes results to Supabase.
+
+### 5. Run the web app
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy to Vercel
 
-## Learn More
+1. Push this repo to GitHub
+2. Connect to Vercel at [vercel.com](https://vercel.com) → Import Project
+3. Add environment variables in Vercel dashboard:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `ANTHROPIC_API_KEY`
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Set up GitHub Actions (weekly agent)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Add these secrets to your GitHub repo (**Settings → Secrets and variables → Actions**):
 
-## Deploy on Vercel
+| Secret | Value |
+|---|---|
+| `ANTHROPIC_API_KEY` | Your Anthropic API key |
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_SERVICE_KEY` | Your Supabase service role key |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The agent runs automatically every Sunday at 6pm ET. You can also trigger it manually from the **Actions** tab → **Weekly Digest** → **Run workflow**.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Architecture
+
+```
+news-app/
+├── app/                    # Next.js App Router
+│   ├── page.tsx            # Digest (main landing page)
+│   └── api/
+│       ├── digest/         # GET digest items for a week
+│       ├── chat/           # POST message, stream Claude response
+│       └── feedback/       # POST thumbs up/down
+│
+├── agent/                  # Aggregation agent (run via GitHub Actions)
+│   ├── run.ts              # Entry point
+│   ├── sources/            # HackerNews, arXiv, RSS
+│   └── pipeline/           # Dedupe, score, analyze
+│
+├── lib/                    # Shared types, Supabase client, Claude client
+├── config/profile.json     # User profile (Phase 1 — hardcoded)
+├── supabase/migrations/    # Schema SQL
+└── .github/workflows/      # weekly-digest.yml
+```
+
+---
+
+## Cost estimate
+
+| Component | Monthly cost |
+|---|---|
+| Vercel Hobby | $0 |
+| Supabase Free | $0 |
+| GitHub Actions | $0 |
+| Claude API (~100 items scored/week + ~15 analyzed + chat) | ~$5–10 |
+| **Total** | **~$5–10** |
+
+---
+
+## Phases
+
+- **Phase 1 (current):** Core digest — aggregation, scoring, analysis, UI, chat
+- **Phase 2:** Onboarding conversation to generate user profile
+- **Phase 3:** Breaking item detection, preference learning, source management UI, archive
+- **Phase 4:** Email delivery, additional sources (GitHub trending, Product Hunt)

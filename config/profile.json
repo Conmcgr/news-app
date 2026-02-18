@@ -1,0 +1,29 @@
+{
+  "interests": [
+    { "domain": "AI / Foundation Models", "weight": 1.0 },
+    { "domain": "AI × Biotech", "weight": 0.9 },
+    { "domain": "Developer Tools", "weight": 0.85 },
+    { "domain": "AI × Fintech", "weight": 0.75 },
+    { "domain": "Defense Tech", "weight": 0.7 },
+    { "domain": "Venture Capital", "weight": 0.8 },
+    { "domain": "Early-Stage Startups", "weight": 0.9 }
+  ],
+  "context": "College junior with a technical background entering a Field/Developer Engineer role. Part of a founding VC fund team at university. Focused on AI and applied AI at the intersection of domains like biotech, fintech, and developer tools.",
+  "goals": [
+    "Stay ahead of AI developments and identify opportunities before they become obvious",
+    "Build pattern recognition for early-stage startup opportunities",
+    "Develop conviction on specific AI × vertical intersections",
+    "Be the most informed person in any VC or technical conversation",
+    "Identify potential startup ideas or companies worth joining early"
+  ],
+  "tracked_entities": [
+    "Anthropic",
+    "OpenAI",
+    "Google DeepMind",
+    "Hugging Face",
+    "Mistral",
+    "Y Combinator",
+    "a16z",
+    "Sequoia"
+  ]
+}

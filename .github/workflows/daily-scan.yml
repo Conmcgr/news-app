@@ -1,0 +1,17 @@
+name: Daily Scan (Phase 3 — Not yet active)
+
+# This workflow is intentionally disabled until Phase 3.
+# It will run a lightweight daily scan for breaking items.
+#
+# To activate: uncomment the schedule block and implement
+# the breaking item detection logic in agent/run-daily.ts
+
+on:
+  workflow_dispatch: # manual only for now
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Daily scan not yet implemented (Phase 3)"
