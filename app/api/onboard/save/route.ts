@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
     if (existing) {
       ({ error } = await supabaseAdmin
         .from('user_profile')
-        .update({ ...profile, updated_at: new Date().toISOString() })
+        .update({ ...profile, onboarded: true, updated_at: new Date().toISOString() })
         .eq('id', existing.id));
     } else {
-      ({ error } = await supabaseAdmin.from('user_profile').insert(profile));
+      ({ error } = await supabaseAdmin.from('user_profile').insert({ ...profile, onboarded: true }));
     }
 
     if (error) throw error;

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { Rss, Zap, Settings, ArchiveIcon } from 'lucide-react';
 import { DigestItem } from '../lib/types';
@@ -37,7 +38,28 @@ async function getDigest(): Promise<{ items: DigestItem[]; week_of: string | nul
 
 export const revalidate = 3600;
 
+async function checkOnboarded(): Promise<boolean> {
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    const { data } = await supabase
+      .from('user_profile')
+      .select('onboarded')
+      .limit(1)
+      .single();
+    return data?.onboarded === true;
+  } catch {
+    return false;
+  }
+}
+
 export default async function DigestPage() {
+  const onboarded = await checkOnboarded();
+  if (!onboarded) redirect('/onboard');
+
   const { items, week_of } = await getDigest();
 
   const featured = items.filter((i) => i.is_featured);
