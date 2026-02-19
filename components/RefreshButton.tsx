@@ -38,11 +38,13 @@ export function RefreshButton() {
     <button
       onClick={handleRefresh}
       disabled={state === 'loading'}
-      className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       title="Re-analyze this week's digest with your current preferences"
     >
-      <RefreshCw className={`w-3.5 h-3.5 ${state === 'loading' ? 'animate-spin' : ''}`} />
-      {state === 'idle' && 'Refresh'}
+      <RefreshCw className={`w-4 h-4 ${state === 'loading' ? 'animate-spin' : ''}`} />
+      {state === 'idle' && (
+        <>Refresh <span className="text-zinc-500 text-xs">~$1</span></>
+      )}
       {state === 'loading' && 'Refreshing…'}
       {state === 'done' && result && `Done (${result.updated} updated)`}
       {state === 'error' && 'Failed'}

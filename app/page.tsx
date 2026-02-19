@@ -86,16 +86,16 @@ export default async function DigestPage() {
             <RefreshButton />
             <Link
               href="/archive"
-              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
             >
-              <ArchiveIcon className="w-3.5 h-3.5" />
+              <ArchiveIcon className="w-4 h-4" />
               Archive
             </Link>
             <Link
               href="/onboard"
-              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
             >
-              <Settings className="w-3.5 h-3.5" />
+              <Settings className="w-4 h-4" />
               Edit profile
             </Link>
           </div>
