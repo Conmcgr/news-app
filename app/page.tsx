@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { Rss, Zap, Settings, ArchiveIcon } from 'lucide-react';
 import { DigestItem } from '../lib/types';
 import { DigestItemCard } from '../components/DigestItemCard';
+import { RefreshButton } from '../components/RefreshButton';
 
 async function getDigest(): Promise<{ items: DigestItem[]; week_of: string | null }> {
   try {
@@ -82,6 +83,7 @@ export default async function DigestPage() {
             {weekLabel && (
               <span className="text-xs text-zinc-500">{weekLabel}</span>
             )}
+            <RefreshButton />
             <Link
               href="/archive"
               className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"

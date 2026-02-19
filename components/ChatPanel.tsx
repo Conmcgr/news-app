@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { X, Send, MessageSquare, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { cn } from '../lib/utils';
 import { DigestItem } from '../lib/types';
 
@@ -158,8 +159,30 @@ export function ChatPanel({ item, onClose }: Props) {
               >
                 {msg.role === 'assistant' && !msg.content && loading ? (
                   <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+                ) : msg.role === 'assistant' ? (
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0 text-sm leading-relaxed">{children}</p>,
+                      h1: ({ children }) => <h1 className="text-base font-bold mb-2 text-white">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-sm font-bold mb-1.5 text-white">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 text-white">{children}</h3>,
+                      ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5 text-sm">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5 text-sm">{children}</ol>,
+                      li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                      pre: ({ children }) => <pre className="bg-zinc-700/60 rounded-lg p-2.5 mb-2 overflow-x-auto text-xs font-mono">{children}</pre>,
+                      code: ({ children, className }) => {
+                        const isBlock = !!className;
+                        if (isBlock) return <code className={className}>{children}</code>;
+                        return <code className="bg-zinc-700 rounded px-1 py-0.5 text-xs font-mono">{children}</code>;
+                      },
+                      strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                      em: ({ children }) => <em className="italic text-zinc-300">{children}</em>,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
                 ) : (
-                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                  <span className="whitespace-pre-wrap text-sm">{msg.content}</span>
                 )}
               </div>
             </div>

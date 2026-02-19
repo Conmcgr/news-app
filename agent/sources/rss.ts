@@ -17,7 +17,6 @@ export const RSS_FEEDS: FeedConfig[] = [
   // AI / Research newsletters
   { url: 'https://tldr.tech/api/rss/ai', name: 'TLDR AI' },
   { url: 'https://www.interconnects.ai/feed', name: 'Interconnects' },
-  { url: 'https://www.deeplearning.ai/the-batch/feed/', name: 'The Batch' },
   { url: 'https://magazine.sebastianraschka.com/feed', name: 'Ahead of AI' },
 
   // Startup / VC / Business tech
@@ -27,6 +26,9 @@ export const RSS_FEEDS: FeedConfig[] = [
   { url: 'https://news.crunchbase.com/feed/', name: 'Crunchbase News' },
   { url: 'https://www.ben-evans.com/benedictevans/rss.xml', name: 'Benedict Evans' },
   { url: 'https://www.thediff.co/feed', name: 'The Diff' },
+  { url: 'https://strictlyvc.com/feed/', name: 'StrictlyVC' },
+  { url: 'https://www.saastr.com/feed/', name: 'SaaStr' },
+  { url: 'https://www.ycombinator.com/blog/rss.xml', name: 'YC Blog' },
 ];
 
 async function fetchFeed(feed: FeedConfig, daysBack: number): Promise<RawItem[]> {
