@@ -36,7 +36,7 @@ async function getDigest(): Promise<{ items: DigestItem[]; week_of: string | nul
   }
 }
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 async function checkOnboarded(): Promise<boolean> {
   try {

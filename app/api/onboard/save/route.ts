@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { anthropic, MODELS } from '../../../../lib/claude';
 import { supabaseAdmin } from '../../../../lib/supabase';
 
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
+    revalidatePath('/');
     return NextResponse.json({ success: true });
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
