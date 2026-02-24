@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase';
+import { createRouteClient } from '../../../lib/supabase-server';
 
 export async function GET(request: NextRequest) {
+  const { supabase } = createRouteClient(request);
   const searchParams = request.nextUrl.searchParams;
   const weekOf = searchParams.get('week_of');
 

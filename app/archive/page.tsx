@@ -1,17 +1,14 @@
 import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import { Rss, ArchiveIcon, ArrowLeft } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
 import { DigestItem } from '../../lib/types';
 import { TagBadge } from '../../components/TagBadge';
 import { RestoreButton } from '../../components/RestoreButton';
+import { createPageClient } from '../../lib/supabase-server';
 
 async function getDismissedItems(): Promise<DigestItem[]> {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = await createPageClient();
     const { data, error } = await supabase
       .from('digest_items')
       .select('*')

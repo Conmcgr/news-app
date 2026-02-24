@@ -1,16 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
 import { Rss, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { FreshOnboard } from './FreshOnboard';
 import { EditProfile } from './EditProfile';
 import { UserProfile } from '../../lib/types';
+import { createPageClient } from '../../lib/supabase-server';
 
 async function getProfile(): Promise<(UserProfile & { onboarded: boolean }) | null> {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = await createPageClient();
     const { data } = await supabase
       .from('user_profile')
       .select('*')

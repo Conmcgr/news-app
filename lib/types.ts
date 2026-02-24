@@ -7,6 +7,8 @@ export interface Interest {
 
 export interface UserProfile {
   id?: string;
+  user_id?: string;
+  onboarded?: boolean;
   interests: Interest[];
   context: string;
   goals: string[];

@@ -5,15 +5,20 @@ import { Rss, Zap, Settings, ArchiveIcon } from 'lucide-react';
 import { DigestItem } from '../lib/types';
 import { DigestItemCard } from '../components/DigestItemCard';
 import { RefreshButton } from '../components/RefreshButton';
+import { createPageClient } from '../lib/supabase-server';
+import { getSupabaseAdmin } from '../lib/supabase';
 
-async function getDigest(): Promise<{ items: DigestItem[]; week_of: string | null }> {
+async function claimUnclaimedData(userId: string) {
+  const admin = getSupabaseAdmin();
+  await Promise.all([
+    admin.from('user_profile').update({ user_id: userId }).is('user_id', null),
+    admin.from('digest_items').update({ user_id: userId }).is('user_id', null),
+    admin.from('chat_messages').update({ user_id: userId }).is('user_id', null),
+  ]);
+}
+
+async function getDigest(supabase: Awaited<ReturnType<typeof createPageClient>>): Promise<{ items: DigestItem[]; week_of: string | null }> {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
     const { data: latest } = await supabase
       .from('digest_items')
       .select('week_of')
@@ -39,13 +44,8 @@ async function getDigest(): Promise<{ items: DigestItem[]; week_of: string | nul
 
 export const revalidate = 0;
 
-async function checkOnboarded(): Promise<boolean> {
+async function checkOnboarded(supabase: Awaited<ReturnType<typeof createPageClient>>): Promise<boolean> {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
     const { data } = await supabase
       .from('user_profile')
       .select('onboarded')
@@ -58,10 +58,17 @@ async function checkOnboarded(): Promise<boolean> {
 }
 
 export default async function DigestPage() {
-  const onboarded = await checkOnboarded();
+  const supabase = await createPageClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    await claimUnclaimedData(user.id);
+  }
+
+  const onboarded = await checkOnboarded(supabase);
   if (!onboarded) redirect('/onboard');
 
-  const { items, week_of } = await getDigest();
+  const { items, week_of } = await getDigest(supabase);
 
   const featured = items.filter((i) => i.is_featured);
   const rest = items.filter((i) => !i.is_featured);

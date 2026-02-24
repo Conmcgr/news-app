@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase';
+import { createRouteClient } from '../../../lib/supabase-server';
 
 export async function POST(request: NextRequest) {
+  const { supabase } = createRouteClient(request);
   const body = await request.json();
   const { id, feedback } = body as { id: string; feedback: 'up' | 'down' | null };
 

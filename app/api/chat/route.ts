@@ -1,10 +1,20 @@
 import { NextRequest } from 'next/server';
 import { anthropic, MODELS } from '../../../lib/claude';
-import { supabase } from '../../../lib/supabase';
+import { createRouteClient } from '../../../lib/supabase-server';
 import { fetchArxivFullText } from '../../../lib/arxiv';
 import { ChatMessage, DigestSource, UserProfile } from '../../../lib/types';
 
 export async function POST(request: NextRequest) {
+  const { supabase } = createRouteClient(request);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const body = await request.json();
   const { digestItemId, message, history = [] } = body as {
     digestItemId: string;
@@ -80,6 +90,7 @@ Sources: ${sources.map((s) => `${s.title} (${s.url})`).join(', ')}${paperSection
       digest_item_id: digestItemId,
       role: 'user',
       content: message,
+      user_id: user.id,
     } as ChatMessage)
     .then(({ error }) => {
       if (error) console.error('Failed to save user message:', error);
@@ -118,6 +129,7 @@ Sources: ${sources.map((s) => `${s.title} (${s.url})`).join(', ')}${paperSection
               digest_item_id: digestItemId,
               role: 'assistant',
               content: fullResponse,
+              user_id: user.id,
             } as ChatMessage)
             .then(({ error }) => {
               if (error) console.error('Failed to save assistant message:', error);
